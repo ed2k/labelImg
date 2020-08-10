@@ -99,17 +99,18 @@ class Shape(object):
             # Uncommenting the following line will draw 2 paths
             # for the 1st vertex, and make it non-filled, which
             # may be desirable.
-            #self.drawVertex(vrtx_path, 0)
+            self.drawVertex(vrtx_path, 0)
 
             for i, p in enumerate(self.points):
                 line_path.lineTo(p)
                 self.drawVertex(vrtx_path, i)
-            if self.isClosed():
+            if self.isClosed() and self.label not in ['road', 'lane']:
                 line_path.lineTo(self.points[0])
 
             painter.drawPath(line_path)
             painter.drawPath(vrtx_path)
-            painter.fillPath(vrtx_path, self.vertex_fill_color)
+            if self.label not in ['road', 'lane']:
+                painter.fillPath(vrtx_path, self.vertex_fill_color)
 
             # Draw text at the top-left
             if self.paintLabel:

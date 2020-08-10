@@ -372,6 +372,8 @@ class Canvas(QWidget):
             shiftPos = pos - point
 
         shape.moveVertexBy(index, shiftPos)
+        if shape.label in ['road', 'lane']:
+            return
 
         lindex = (index + 1) % 4
         rindex = (index + 3) % 4
