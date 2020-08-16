@@ -1075,11 +1075,11 @@ class MainWindow(QMainWindow, WindowMixin):
                     os.path.splitext(self.filePath)[0])
                 xmlPath = os.path.join(self.defaultSaveDir, basename + XML_EXT)
                 txtPath = os.path.join(self.defaultSaveDir, basename + json_io.EXT)
-
+                print(txtPath)
                 """Annotation file priority:
                 JSON > PascalXML > YOLO
                 """
-                if os.path.isfile(xmlPath):
+                if os.path.isfile(txtPath):
                     self.loadJsonByFilename(txtPath)
                 elif os.path.isfile(txtPath):
                     self.loadPascalXMLByFilename(xmlPath)

@@ -78,8 +78,11 @@ class LabelFile(object):
             label = shape['label']
             # Add Chris
             difficult = int(shape['difficult'])
-            bndbox = LabelFile.convertPoints2BndBox(points)
-            writer.addBndBox(bndbox[0], bndbox[1], bndbox[2], bndbox[3], label, difficult)
+            if label in ['road', 'lane']:
+                writer.addPath(points, label, difficult)
+            else:
+                bndbox = LabelFile.convertPoints2BndBox(points)
+                writer.addBndBox(bndbox[0], bndbox[1], bndbox[2], bndbox[3], label, difficult)
 
         writer.save(targetFile=filename)
         return

@@ -65,13 +65,18 @@ class Shape(object):
         self._closed = True
 
     def reachMaxPoints(self):
+        if self.label in ['road', 'lane']:
+            if len(self.points) > 4:
+                return True
+            return False
         if len(self.points) >= 4:
             return True
         return False
 
     def addPoint(self, point):
-        if not self.reachMaxPoints():
-            self.points.append(point)
+        print('addpoint', point)
+        #if not self.reachMaxPoints():
+        self.points.append(point)
 
     def popPoint(self):
         if self.points:
@@ -102,8 +107,15 @@ class Shape(object):
             self.drawVertex(vrtx_path, 0)
 
             for i, p in enumerate(self.points):
-                line_path.lineTo(p)
+                #line_path.lineTo(p)
                 self.drawVertex(vrtx_path, i)
+
+            if self.isClosed():
+                pts = [(p.x(),p.y()) for p in self.points]
+                plots = get_polyfit(pts)
+                for p in plots:
+                    line_path.lineTo(QPointF(p[0],p[1]))
+
             if self.isClosed() and self.label not in ['road', 'lane']:
                 line_path.lineTo(self.points[0])
 
@@ -204,3 +216,41 @@ class Shape(object):
 
     def __setitem__(self, key, value):
         self.points[key] = value
+
+import numpy as np
+def get_rotation_matrix(x, y):
+    a = np.sqrt(x*x+y*y)
+    cos_theta = x/a
+    sin_theta = -y/a # positive y goes down wards
+    return np.array([[cos_theta, -sin_theta],[sin_theta, cos_theta]])
+
+def get_polyfit(points):
+    x0,y0 = points[0]
+    x1,y1 = points[-1]
+    dx = x1 - x0
+    dy = y1 - y0
+    rotation_matrix = get_rotation_matrix(x1-x0, y1-y0)
+    #rotation_matrix = get_rotation_matrix(1.0, 0.0)
+    inv_rotation_matrix = rotation_matrix.transpose()
+    x = np.zeros(len(points))
+    y = np.zeros(len(points))
+    for i, p in enumerate(points):        
+        x[i] = p[0]
+        y[i] = p[1]
+    pts_new = np.matmul(rotation_matrix, [x, y])
+
+    z = np.polyfit(pts_new[0], pts_new[1], 4)
+    f = np.poly1d(z)
+
+    plots = []
+    for i in range(1, len(points)):
+        p0 = pts_new[:,i-1]
+        p1 = pts_new[:,i]
+        n = 8
+        for d in range(1, n):
+            x = p0[0]+(p1[0]-p0[0])*d/n
+            y = f(x)
+            origin = np.matmul(inv_rotation_matrix, [x,y])
+            plots.append(origin)
+        plots.append(points[i])
+    return plots

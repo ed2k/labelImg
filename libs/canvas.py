@@ -284,6 +284,8 @@ class Canvas(QWidget):
             self.current.addPoint(QPointF(maxX, minY))
             self.current.addPoint(targetPos)
             self.current.addPoint(QPointF(minX, maxY))
+            # extra one for lane and road    
+            self.current.addPoint(QPointF((minX+maxX)/2, (minY+maxY)/2))
             self.finalise()
         elif not self.outOfPixmap(pos):
             self.current = Shape()
@@ -303,6 +305,7 @@ class Canvas(QWidget):
         # We need at least 4 points here, since the mousePress handler
         # adds an extra one before this handler is called.
         if self.canCloseShape() and len(self.current) > 3:
+            print('mouseDoubleClick popPoint')
             self.current.popPoint()
             self.finalise()
 
